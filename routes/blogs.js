@@ -7,10 +7,14 @@ router.get("/hello-blogs", function (req, res) {
 });
 
 router.get("/all-blogs", async function (req, res) {
-  const collection = await blogsDB().collection("fiftyblogs");
-  const posts = await collection.find({}).toArray();
-
-  res.json(collection);
+  try {
+    const collection = await blogsDB().collection("fiftyblogs");
+    const posts = await collection.find({}).toArray();
+    // console.log(posts);
+    res.send({ message: posts });
+  } catch (e) {
+    res.status(500).send("Error getting posts" + e);
+  }
 });
 
 module.exports = router;

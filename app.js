@@ -6,6 +6,7 @@ var logger = require("morgan");
 
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
+var blogsRouter = require("./routes/blogs");
 
 var app = express();
 //mongo stuff
@@ -13,15 +14,15 @@ var { mongoConnect } = require("./mongo.js");
 mongoConnect();
 //enable cors
 const cors = require("cors");
-app.use(cors());
-app.options("*", cors());
-
-var blogsRouter = require("./routes/blogs");
-app.use("/blogs", blogsRouter);
+app.use(cors({ origin: "http://localhost:3000" }));
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
+
+app.options("*", cors());
+
+app.use("/blogs", blogsRouter);
 
 app.use(logger("dev"));
 app.use(express.json());
