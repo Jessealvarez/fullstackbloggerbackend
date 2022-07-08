@@ -9,9 +9,30 @@ router.get("/hello-blogs", function (req, res) {
 router.get("/all-blogs", async function (req, res) {
   try {
     const collection = await blogsDB().collection("fiftyblogs");
-    const posts = await collection.find({}).toArray();
-    // console.log(posts);
-    res.send({ message: posts });
+
+    const limit = Number(req.query.limit);
+    const skip = Number(req.query.limit) * (Number(req.query.page) - 1);
+    const sortField = req.query.sortField;
+    const sortOrder = req.query.sortOrder === "ASC" ? 1 : -1;
+    const filterField = req.query.filterField;
+    const filterValue = req.query.filterValue;
+
+    let filterObj = {};
+    if (filterField && filterValue) {
+      filterObj = { [filterField]: filterValue };
+    }
+    let sortObj = {};
+    if (sortField && sortOrder) {
+      sortObj = { [sortField]: sortOrder };
+    }
+
+    const posts50 = await collection
+      .find(filterObj)
+      .sort(sortObj)
+      .limit(limit)
+      .skip(skip)
+      .toArray();
+    res.json({ message: posts50 });
   } catch (e) {
     res.status(500).send("Error getting posts" + e);
   }
