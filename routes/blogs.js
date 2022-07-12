@@ -38,4 +38,26 @@ router.get("/all-blogs", async function (req, res) {
   }
 });
 
+router.post("/blog-submit", async function (req, res, next) {
+  console.log(req.body);
+  try {
+    const title = req.body.title;
+    const text = req.body.text;
+    const author = req.body.author;
+
+    const blogPost = {
+      title: title,
+      text: text,
+      author: author,
+      id: Number(lastBlog.id + 1),
+      createdAt: new Date(),
+      lastModified: new Date(),
+    };
+
+    await collection.insertOne(blogPost);
+    res.status(200).send("New Blog Submitted");
+  } catch (error) {
+    res.status(500).send("Error submitting post");
+  }
+});
 module.exports = router;
