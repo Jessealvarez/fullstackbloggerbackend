@@ -3,35 +3,38 @@ var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
+const cors = require("cors");
 
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 var blogsRouter = require("./routes/blogs");
+
+var adminRouter = require("./routes/admin");
 
 var app = express();
 //mongo stuff
 var { mongoConnect } = require("./mongo.js");
 mongoConnect();
 //enable cors
-const cors = require("cors");
-app.use(cors({ origin: "http://localhost:3000" }));
+
+app.use(cors({ origin: "*" }));
+
+app.use("/admin", adminRouter);
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
-
-app.options("*", cors());
-
-app.use("/blogs", blogsRouter);
 
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
-
+// routes stuff
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
+app.use("/blogs", blogsRouter);
+app.use("/admin", adminRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
