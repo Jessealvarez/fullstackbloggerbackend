@@ -34,6 +34,7 @@ router.get("/all-blogs", async function (req, res) {
       .toArray();
     res.json({ message: posts50 });
   } catch (e) {
+    console.error(e);
     res.status(500).send("Error getting posts" + e);
   }
 });
@@ -44,20 +45,37 @@ router.post("/blog-submit", async function (req, res, next) {
     const title = req.body.title;
     const text = req.body.text;
     const author = req.body.author;
+    const collection = await blogsDB().collection("fiftyblogs");
+    const postsCollection = await collection.count();
 
     const blogPost = {
       title: title,
       text: text,
       author: author,
-      id: Number(lastBlog.id + 1),
+      id: Number(postsCollection + 1),
       createdAt: new Date(),
       lastModified: new Date(),
     };
 
     await collection.insertOne(blogPost);
-    res.status(200).send("New Blog Submitted");
+    res.status(200).json({ message: "New Blog Submitted" });
   } catch (error) {
+    console.error(error);
     res.status(500).send("Error submitting post");
+  }
+});
+
+router.get("/single-blog/:blogId", async function (req, res) {
+  try {
+    const blogId = Number(req.params.blogId);
+    console.log(blogId);
+    const collection = await blogsDB().collection("fiftyblogs");
+    const blogPost = await collection.findOne({ id: blogId });
+    console.log("blogPost ", blogPost);
+    res.json(blogPost);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error!");
   }
 });
 module.exports = router;
